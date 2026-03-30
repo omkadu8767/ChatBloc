@@ -1,0 +1,47 @@
+# Dependencies
+**/node_modules/
+
+# Env / secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs
+**/logs/
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+backend/dist/
+backend/dist-ssr/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+backend/coverage/
+
+# Hardhat generated files
+blockchain/cache/
+blockchain/artifacts/
+blockchain/typechain-types/
+blockchain/coverage/
+blockchain/coverage.json
+blockchain/gas-report.txt
+
+# Local-only deployment state (optional but recommended)
+blockchain/deployments/local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

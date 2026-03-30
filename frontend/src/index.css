@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+    font-family: "Space Grotesk", sans-serif;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(34, 211, 238, 0.4) rgba(15, 23, 42, 0.3);
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at 10% 10%, #0e7490 0%, transparent 40%),
+        radial-gradient(circle at 80% 30%, #1e293b 0%, transparent 50%), #020617;
+}
