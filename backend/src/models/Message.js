@@ -24,7 +24,21 @@ const messageSchema = new mongoose.Schema(
         },
         blockchainIndex: {
             type: Number,
-            required: true,
+            default: null,
+        },
+        blockchainTxHash: {
+            type: String,
+            default: null,
+        },
+        chainStatus: {
+            type: String,
+            enum: ["pending", "confirmed", "failed"],
+            default: "pending",
+            index: true,
+        },
+        chainError: {
+            type: String,
+            default: null,
         },
         timestamp: {
             type: Date,

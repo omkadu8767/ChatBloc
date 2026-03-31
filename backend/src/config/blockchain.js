@@ -66,11 +66,7 @@ function getContract() {
     return contract;
 }
 
-async function storeHashOnChain(hash) {
-    const chainContract = getContract();
-    const tx = await chainContract.storeHash(hash);
-    const receipt = await tx.wait();
-
+function parseHashStoredIndex(receipt, chainContract) {
     const hashStoredEvent = receipt.logs
         .map((log) => {
             try {
@@ -88,12 +84,31 @@ async function storeHashOnChain(hash) {
     return Number(hashStoredEvent.args.index);
 }
 
+async function submitHashTransaction(hash) {
+    const chainContract = getContract();
+    const tx = await chainContract.storeHash(hash);
+
+    return {
+        txHash: tx.hash,
+        waitForIndex: async () => {
+            const receipt = await tx.wait();
+            return parseHashStoredIndex(receipt, chainContract);
+        },
+    };
+}
+
+async function storeHashOnChain(hash) {
+    const pendingTx = await submitHashTransaction(hash);
+    return pendingTx.waitForIndex();
+}
+
 async function getHashFromChain(index) {
     const chainContract = getContract();
     return chainContract.getHash(index);
 }
 
 module.exports = {
+    submitHashTransaction,
     storeHashOnChain,
     getHashFromChain,
 };

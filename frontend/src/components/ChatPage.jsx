@@ -1,4 +1,4 @@
-import { LogOut, SendHorizonal, ShieldCheck } from "lucide-react";
+import { LoaderCircle, LogOut, SendHorizonal, ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -18,14 +18,36 @@ function ChatPage({ user, token, onLogout }) {
     const [loading, setLoading] = useState(false);
     const socketRef = useRef(null);
     const selectedUserIdRef = useRef("");
+    const selectedChatStorageKey = `selected_chat_user_${user.id}`;
 
     const selectedUser = useMemo(() => {
         return users.find((item) => item._id === selectedUserId);
     }, [users, selectedUserId]);
 
+    function isEventForActiveConversation(payload) {
+        const activePeerId = selectedUserIdRef.current;
+
+        if (!activePeerId || !payload?.sender || !payload?.receiver) {
+            return false;
+        }
+
+        const sender = String(payload.sender);
+        const receiver = String(payload.receiver);
+        const me = String(user.id);
+
+        return (
+            (sender === me && receiver === activePeerId) ||
+            (receiver === me && sender === activePeerId)
+        );
+    }
+
     useEffect(() => {
         selectedUserIdRef.current = selectedUserId;
-    }, [selectedUserId]);
+
+        if (selectedUserId) {
+            localStorage.setItem(selectedChatStorageKey, selectedUserId);
+        }
+    }, [selectedUserId, selectedChatStorageKey]);
 
     useEffect(() => {
         if (!token) {
@@ -38,15 +60,30 @@ function ChatPage({ user, token, onLogout }) {
         });
 
         socketRef.current = socket;
-        socket.emit("join", user.id);
-        socket.on("new_message", () => {
-            const activePeerId = selectedUserIdRef.current;
-            if (activePeerId) {
-                loadMessages(activePeerId).catch((error) => {
+        const joinCurrentUserRoom = () => {
+            socket.emit("join", user.id);
+        };
+
+        socket.on("connect", joinCurrentUserRoom);
+        socket.on("new_message", (payload) => {
+            if (isEventForActiveConversation(payload)) {
+                loadMessages(selectedUserIdRef.current).catch((error) => {
                     console.error(error);
                 });
             }
         });
+
+        socket.on("message_chain_update", (payload) => {
+            if (isEventForActiveConversation(payload)) {
+                loadMessages(selectedUserIdRef.current).catch((error) => {
+                    console.error(error);
+                });
+            }
+        });
+
+        if (socket.connected) {
+            joinCurrentUserRoom();
+        }
 
         return () => {
             socket.disconnect();
@@ -55,18 +92,49 @@ function ChatPage({ user, token, onLogout }) {
     }, [token, user.id]);
 
     useEffect(() => {
+        const hasPending = messages.some(
+            (item) => item.verificationStatus === "pending" || item.chainStatus === "pending"
+        );
+
+        if (!selectedUserId || !hasPending) {
+            return undefined;
+        }
+
+        const timer = setInterval(() => {
+            loadMessages(selectedUserId).catch((error) => {
+                console.error(error);
+            });
+        }, 6000);
+
+        return () => clearInterval(timer);
+    }, [messages, selectedUserId]);
+
+    useEffect(() => {
         async function loadUsers() {
             const response = await fetchUsers();
-            setUsers(response.data || []);
-            if ((response.data || []).length > 0) {
-                setSelectedUserId(response.data[0]._id);
+            const fetchedUsers = response.data || [];
+            setUsers(fetchedUsers);
+
+            if (fetchedUsers.length === 0) {
+                setSelectedUserId("");
+                return;
             }
+
+            const persistedUserId = localStorage.getItem(selectedChatStorageKey);
+            const persistedExists = fetchedUsers.some((item) => item._id === persistedUserId);
+
+            if (persistedExists) {
+                setSelectedUserId(persistedUserId);
+                return;
+            }
+
+            setSelectedUserId(fetchedUsers[0]._id);
         }
 
         loadUsers().catch((error) => {
             console.error(error);
         });
-    }, []);
+    }, [selectedChatStorageKey]);
 
     useEffect(() => {
         if (selectedUserId) {
@@ -84,14 +152,18 @@ function ChatPage({ user, token, onLogout }) {
             conversation.map(async (item) => {
                 try {
                     const verifyResponse = await verifySecureMessage(item.id);
+                    const verification = verifyResponse.data || {};
+
                     return {
                         ...item,
-                        valid: verifyResponse.data.valid,
+                        valid: typeof verification.valid === "boolean" ? verification.valid : undefined,
+                        verificationStatus: verification.verificationStatus,
                     };
                 } catch (_error) {
                     return {
                         ...item,
-                        valid: false,
+                        valid: undefined,
+                        verificationStatus: "failed",
                     };
                 }
             })
@@ -122,13 +194,15 @@ function ChatPage({ user, token, onLogout }) {
 
     async function handleVerify(messageId) {
         const response = await verifySecureMessage(messageId);
+        const verification = response.data || {};
 
         setMessages((previous) =>
             previous.map((item) =>
                 item.id === messageId
                     ? {
                         ...item,
-                        valid: response.data.valid,
+                        valid: typeof verification.valid === "boolean" ? verification.valid : undefined,
+                        verificationStatus: verification.verificationStatus,
                     }
                     : item
             )
@@ -202,18 +276,31 @@ function ChatPage({ user, token, onLogout }) {
                 </section>
 
                 <form className="flex gap-2" onSubmit={handleSend}>
-                    <input
-                        className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300"
-                        placeholder="Write secure message..."
-                        value={draft}
-                        onChange={(event) => setDraft(event.target.value)}
-                    />
+                    <div className="w-full">
+                        <input
+                            className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300"
+                            placeholder="Write secure message..."
+                            value={draft}
+                            onChange={(event) => setDraft(event.target.value)}
+                            disabled={loading}
+                        />
+                        {loading && (
+                            <p className="mt-2 text-xs text-cyan-200">Sending securely to server and blockchain...</p>
+                        )}
+                    </div>
                     <button
-                        className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-4 py-3 text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="inline-flex min-w-[112px] items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
                         type="submit"
                         disabled={loading || !selectedUserId}
                     >
-                        <SendHorizonal size={18} />
+                        {loading ? (
+                            <>
+                                <LoaderCircle className="animate-spin" size={18} />
+                                <span className="text-sm font-medium">Sending</span>
+                            </>
+                        ) : (
+                            <SendHorizonal size={18} />
+                        )}
                     </button>
                 </form>
             </main>
