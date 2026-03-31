@@ -24,7 +24,7 @@ function App() {
   }, []);
 
   function tabClassName({ isActive }) {
-    const base = "rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition";
+    const base = "rounded-lg px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition sm:text-xs sm:tracking-[0.2em]";
     if (isActive) {
       return `${base} bg-cyan-400 text-slate-950`;
     }
@@ -63,16 +63,16 @@ function App() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-8 sm:px-8">
+    <div className="relative min-h-screen overflow-x-hidden bg-slate-950 px-3 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
       <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-300/10 blur-3xl" />
 
-      <header className="mx-auto mb-8 w-full max-w-6xl">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 backdrop-blur-xl">
+      <header className="mx-auto mb-6 w-full max-w-6xl sm:mb-8">
+        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
           <NavLink className="text-lg font-bold text-cyan-300" to="/">
             ChatBloc
           </NavLink>
-          <nav className="flex items-center gap-2">
+          <nav className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
             <NavLink className={tabClassName} to="/">
               Home
             </NavLink>
@@ -97,7 +97,7 @@ function App() {
             )}
           </nav>
         </div>
-        <h1 className="mt-3 max-w-3xl text-3xl font-bold text-white sm:text-5xl">{titleText}</h1>
+        <h1 className="mt-3 max-w-3xl text-2xl font-bold text-white sm:text-4xl lg:text-5xl">{titleText}</h1>
       </header>
 
       {error && (
@@ -139,9 +139,16 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      <a href="https://www.linkedin.com/in/om-kadu-53305425a/" target="_blank"><footer className="mx-auto mt-10 w-full max-w-6xl border-t border-cyan-400/20 pt-6 text-center">
-        <p className="text-sm font-medium text-cyan-300">Made with Love by OK</p>
-      </footer></a>
+      <footer className="mx-auto mt-8 w-full max-w-6xl border-t border-cyan-400/20 pt-5 text-center sm:mt-10 sm:pt-6">
+        <a
+          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+          href="https://www.linkedin.com/in/om-kadu-53305425a/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Made with Love by OK
+        </a>
+      </footer>
     </div>
   );
 }

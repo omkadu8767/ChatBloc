@@ -228,7 +228,7 @@ function ChatPage({ user, token, onLogout }) {
                 </header>
 
                 <p className="mb-3 text-xs text-slate-400">Choose receiver</p>
-                <div className="space-y-2">
+                <div className="max-h-56 space-y-2 overflow-y-auto pr-1 lg:max-h-none">
                     {users.map((item) => (
                         <button
                             className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition ${selectedUserId === item._id
@@ -248,20 +248,20 @@ function ChatPage({ user, token, onLogout }) {
             </aside>
 
             <main className="rounded-3xl border border-white/15 bg-slate-950/70 p-4 backdrop-blur-xl">
-                <header className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <header className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4 sm:items-center">
                     <div>
                         <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Secure Conversation</p>
-                        <h3 className="text-xl font-semibold text-white">
+                        <h3 className="text-lg font-semibold text-white sm:text-xl">
                             {selectedUser ? selectedUser.name : "Select a receiver"}
                         </h3>
                     </div>
-                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-300 sm:text-xs">
                         <ShieldCheck size={14} />
                         AES + SHA-256 + Blockchain
                     </span>
                 </header>
 
-                <section className="mb-4 flex h-[460px] flex-col gap-3 overflow-y-auto rounded-2xl bg-black/20 p-3">
+                <section className="mb-4 flex h-[52vh] min-h-[280px] flex-col gap-3 overflow-y-auto rounded-2xl bg-black/20 p-3 sm:h-[460px]">
                     {messages.map((item) => (
                         <MessageBubble
                             key={item.id}
@@ -275,7 +275,7 @@ function ChatPage({ user, token, onLogout }) {
                     )}
                 </section>
 
-                <form className="flex gap-2" onSubmit={handleSend}>
+                <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleSend}>
                     <div className="w-full">
                         <input
                             className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300"
@@ -289,7 +289,7 @@ function ChatPage({ user, token, onLogout }) {
                         )}
                     </div>
                     <button
-                        className="inline-flex min-w-[112px] items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="inline-flex w-full min-w-[112px] items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
                         type="submit"
                         disabled={loading || !selectedUserId}
                     >

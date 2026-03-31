@@ -2,21 +2,21 @@ import { Box, CheckCircle2, Database, Lock, Zap } from "lucide-react";
 
 function HomePage({ onGetStarted }) {
     return (
-        <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+        <div className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
             {/* Background gradients */}
             <div className="pointer-events-none fixed -left-16 -top-16 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
             <div className="pointer-events-none fixed bottom-0 right-0 h-80 w-80 rounded-full bg-sky-300/10 blur-3xl" />
 
             {/* Header */}
             <header className="relative border-b border-white/10 backdrop-blur-xl">
-                <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8">
-                    <div className="flex items-center justify-between">
+                <div className="mx-auto max-w-6xl px-4 py-5 sm:px-8 sm:py-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-bold text-cyan-400">ChatBloc</h1>
                             <p className="text-xs text-slate-400">End-to-End Encrypted Messaging with Blockchain Integrity</p>
                         </div>
                         <button
-                            className="rounded-lg bg-cyan-400 px-6 py-2 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                            className="w-full rounded-lg bg-cyan-400 px-6 py-2 font-semibold text-slate-950 transition hover:bg-cyan-300 sm:w-auto"
                             type="button"
                             onClick={onGetStarted}
                         >
@@ -28,24 +28,24 @@ function HomePage({ onGetStarted }) {
 
             {/* Hero Section */}
             <section className="relative border-b border-white/10">
-                <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8 lg:py-24">
+                <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16 lg:py-24">
                     <div className="max-w-3xl">
-                        <h2 className="text-4xl font-bold sm:text-5xl">
+                        <h2 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
                             Secure Messaging with Cryptographic Integrity Verification
                         </h2>
-                        <p className="mt-6 text-lg text-slate-300">
+                        <p className="mt-5 text-base text-slate-300 sm:mt-6 sm:text-lg">
                             Send encrypted messages with AES-256 encryption, store message hashes on blockchain, and verify integrity using SHA-256. Perfect for learning secure communication architectures.
                         </p>
-                        <div className="mt-8 flex gap-4">
+                        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                             <button
-                                className="rounded-lg bg-cyan-400 px-8 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                                className="w-full rounded-lg bg-cyan-400 px-8 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 sm:w-auto"
                                 type="button"
                                 onClick={onGetStarted}
                             >
                                 Start Chatting
                             </button>
                             <a
-                                className="rounded-lg border border-cyan-400/50 px-8 py-3 font-semibold text-cyan-400 transition hover:bg-cyan-400/10"
+                                className="w-full rounded-lg border border-cyan-400/50 px-8 py-3 text-center font-semibold text-cyan-400 transition hover:bg-cyan-400/10 sm:w-auto"
                                 href="#tech-stack"
                             >
                                 View Tech Stack
@@ -57,12 +57,12 @@ function HomePage({ onGetStarted }) {
 
             {/* How It Works */}
             <section className="relative border-b border-white/10">
-                <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8 lg:py-24">
-                    <h3 className="mb-12 text-3xl font-bold">How It Works</h3>
+                <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16 lg:py-24">
+                    <h3 className="mb-10 text-2xl font-bold sm:mb-12 sm:text-3xl">How It Works</h3>
 
                     <div className="grid gap-8 lg:grid-cols-2">
                         {/* Send Flow */}
-                        <div className="rounded-xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm sm:p-8">
                             <h4 className="mb-6 flex items-center gap-3 text-xl font-semibold text-cyan-400">
                                 <Zap size={24} />
                                 Sending a Message
@@ -96,7 +96,7 @@ function HomePage({ onGetStarted }) {
                         </div>
 
                         {/* Receive/Verify Flow */}
-                        <div className="rounded-xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm sm:p-8">
                             <h4 className="mb-6 flex items-center gap-3 text-xl font-semibold text-emerald-400">
                                 <CheckCircle2 size={24} />
                                 Verifying a Message
@@ -134,8 +134,8 @@ function HomePage({ onGetStarted }) {
 
             {/* Features */}
             <section className="relative border-b border-white/10">
-                <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8 lg:py-24">
-                    <h3 className="mb-12 text-3xl font-bold">Key Features</h3>
+                <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16 lg:py-24">
+                    <h3 className="mb-10 text-2xl font-bold sm:mb-12 sm:text-3xl">Key Features</h3>
 
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
@@ -191,8 +191,8 @@ function HomePage({ onGetStarted }) {
 
             {/* Tech Stack */}
             <section className="relative border-b border-white/10" id="tech-stack">
-                <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8 lg:py-24">
-                    <h3 className="mb-12 text-3xl font-bold">Technology Stack</h3>
+                <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16 lg:py-24">
+                    <h3 className="mb-10 text-2xl font-bold sm:mb-12 sm:text-3xl">Technology Stack</h3>
 
                     <div className="grid gap-8 lg:grid-cols-4">
                         <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
@@ -244,8 +244,8 @@ function HomePage({ onGetStarted }) {
 
             {/* Security */}
             <section className="relative border-b border-white/10">
-                <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8 lg:py-24">
-                    <h3 className="mb-12 text-3xl font-bold">Security Measures</h3>
+                <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16 lg:py-24">
+                    <h3 className="mb-10 text-2xl font-bold sm:mb-12 sm:text-3xl">Security Measures</h3>
 
                     <div className="space-y-6">
                         <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
@@ -273,11 +273,11 @@ function HomePage({ onGetStarted }) {
 
             {/* CTA */}
             <section className="relative">
-                <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-8 lg:py-24">
-                    <h3 className="mb-6 text-3xl font-bold">Ready to Secure Your Conversations?</h3>
-                    <p className="mb-8 text-lg text-slate-300">Join the encrypted messaging network and verify message integrity with blockchain.</p>
+                <div className="mx-auto max-w-6xl px-4 py-12 text-center sm:px-8 sm:py-16 lg:py-24">
+                    <h3 className="mb-5 text-2xl font-bold sm:mb-6 sm:text-3xl">Ready to Secure Your Conversations?</h3>
+                    <p className="mb-8 text-base text-slate-300 sm:text-lg">Join the encrypted messaging network and verify message integrity with blockchain.</p>
                     <button
-                        className="rounded-lg bg-cyan-400 px-8 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                        className="w-full rounded-lg bg-cyan-400 px-8 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 sm:w-auto"
                         type="button"
                         onClick={onGetStarted}
                     >

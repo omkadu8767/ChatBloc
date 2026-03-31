@@ -38,9 +38,9 @@ function AuthForm({ mode, loading, onSubmit, onModeChange }) {
     }
 
     return (
-        <section className="mx-auto w-full max-w-md rounded-3xl border border-white/20 bg-slate-950/70 p-8 backdrop-blur-xl">
+        <section className="mx-auto w-full max-w-md rounded-3xl border border-white/20 bg-slate-950/70 p-5 backdrop-blur-xl sm:p-8">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">Cipher Chat</p>
-            <h1 className="mt-2 text-3xl font-bold text-white">{title}</h1>
+            <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">{title}</h1>
             <p className="mt-2 text-sm text-slate-300">{subtitle}</p>
 
             <form className="mt-8 space-y-4" onSubmit={handleSubmit}>

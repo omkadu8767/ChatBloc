@@ -13,7 +13,7 @@ function MessageBubble({ item, self, onVerify }) {
                 : "border-white/10 bg-slate-900/70"
                 }`}
         >
-            <header className="mb-2 flex items-center justify-between gap-3 text-xs text-slate-300">
+            <header className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-300 sm:gap-3 sm:text-xs">
                 <span className="inline-flex items-center gap-1">
                     <LockKeyhole size={14} />
                     encrypted
@@ -24,7 +24,7 @@ function MessageBubble({ item, self, onVerify }) {
             <p className="mb-2 break-all rounded-lg bg-black/25 p-2 text-cyan-100">{item.encryptedMessage}</p>
             <p className="rounded-lg bg-white/5 p-2 text-slate-100">{item.decryptedMessage}</p>
 
-            <footer className="mt-3 flex items-center justify-between gap-3">
+            <footer className="mt-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 {verificationStatus === "pending" && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-300">
                         <Clock3 size={14} />
@@ -54,7 +54,7 @@ function MessageBubble({ item, self, onVerify }) {
                     </button>
                 ) : null}
 
-                <span className="max-w-[220px] truncate text-xs text-slate-400">SHA-256: {item.hash}</span>
+                <span className="max-w-full truncate text-xs text-slate-400 sm:max-w-[220px]">SHA-256: {item.hash}</span>
             </footer>
         </article>
     );
