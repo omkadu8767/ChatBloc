@@ -62,16 +62,33 @@ Result: confidentiality plus verifiable message integrity.
 ## Architecture
 
 ```mermaid
-flowchart LR
-		U1[User A Browser] -->|HTTPS + JWT| BE[Express API]
-		U2[User B Browser] -->|HTTPS + JWT| BE
-		U1 <-->|Socket.IO| BE
-		U2 <-->|Socket.IO| BE
+graph LR
+    subgraph Clients
+        U1[User A Browser]
+        U2[User B Browser]
+    end
 
-		BE -->|Encrypted payloads| DB[(MongoDB)]
-		BE -->|storeHash(hash)| SC[(MessageHashStorage.sol)]
-		BE -->|JSON-RPC| HH[Hardhat Node / EVM Network]
-		HH --> SC
+    BE[Express API]
+
+    subgraph Storage & Blockchain
+        DB[(MongoDB)]
+        SC[(MessageHashStorage.sol)]
+        HH[Hardhat Node / EVM Network]
+    end
+
+    %% Client Connections
+    U1 -->|HTTPS + JWT| BE
+    U2 -->|HTTPS + JWT| BE
+    U1 <-->|Socket.IO| BE
+    U2 <-->|Socket.IO| BE
+
+    %% Backend to Storage/Chain
+    BE -->|Encrypted payloads| DB
+    BE -->|storeHash/hash/| SC
+    BE -->|JSON-RPC| HH
+    
+    %% Contract on Network
+    HH --- SC
 ```
 
 ---
