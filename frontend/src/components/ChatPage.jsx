@@ -1,3 +1,4 @@
+import { Skeleton } from "boneyard-js/react";
 import { LoaderCircle, LogOut, SendHorizonal, ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
@@ -12,8 +13,10 @@ import MessageBubble from "./MessageBubble";
 
 function ChatPage({ user, token, onLogout }) {
     const [users, setUsers] = useState([]);
+    const [usersLoading, setUsersLoading] = useState(true);
     const [selectedUserId, setSelectedUserId] = useState("");
     const [messages, setMessages] = useState([]);
+    const [messagesLoading, setMessagesLoading] = useState(false);
     const [draft, setDraft] = useState("");
     const [loading, setLoading] = useState(false);
     const socketRef = useRef(null);
@@ -111,24 +114,29 @@ function ChatPage({ user, token, onLogout }) {
 
     useEffect(() => {
         async function loadUsers() {
-            const response = await fetchUsers();
-            const fetchedUsers = response.data || [];
-            setUsers(fetchedUsers);
+            setUsersLoading(true);
+            try {
+                const response = await fetchUsers();
+                const fetchedUsers = response.data || [];
+                setUsers(fetchedUsers);
 
-            if (fetchedUsers.length === 0) {
-                setSelectedUserId("");
-                return;
+                if (fetchedUsers.length === 0) {
+                    setSelectedUserId("");
+                    return;
+                }
+
+                const persistedUserId = localStorage.getItem(selectedChatStorageKey);
+                const persistedExists = fetchedUsers.some((item) => item._id === persistedUserId);
+
+                if (persistedExists) {
+                    setSelectedUserId(persistedUserId);
+                    return;
+                }
+
+                setSelectedUserId(fetchedUsers[0]._id);
+            } finally {
+                setUsersLoading(false);
             }
-
-            const persistedUserId = localStorage.getItem(selectedChatStorageKey);
-            const persistedExists = fetchedUsers.some((item) => item._id === persistedUserId);
-
-            if (persistedExists) {
-                setSelectedUserId(persistedUserId);
-                return;
-            }
-
-            setSelectedUserId(fetchedUsers[0]._id);
         }
 
         loadUsers().catch((error) => {
@@ -138,38 +146,50 @@ function ChatPage({ user, token, onLogout }) {
 
     useEffect(() => {
         if (selectedUserId) {
-            loadMessages(selectedUserId).catch((error) => {
+            loadMessages(selectedUserId, { withLoading: true }).catch((error) => {
                 console.error(error);
             });
         }
     }, [selectedUserId]);
 
-    async function loadMessages(peerId) {
-        const response = await fetchConversation(peerId);
-        const conversation = response.data || [];
+    async function loadMessages(peerId, options = {}) {
+        const { withLoading = false } = options;
 
-        const withVerification = await Promise.all(
-            conversation.map(async (item) => {
-                try {
-                    const verifyResponse = await verifySecureMessage(item.id);
-                    const verification = verifyResponse.data || {};
+        if (withLoading) {
+            setMessagesLoading(true);
+        }
 
-                    return {
-                        ...item,
-                        valid: typeof verification.valid === "boolean" ? verification.valid : undefined,
-                        verificationStatus: verification.verificationStatus,
-                    };
-                } catch (_error) {
-                    return {
-                        ...item,
-                        valid: undefined,
-                        verificationStatus: "failed",
-                    };
-                }
-            })
-        );
+        try {
+            const response = await fetchConversation(peerId);
+            const conversation = response.data || [];
 
-        setMessages(withVerification);
+            const withVerification = await Promise.all(
+                conversation.map(async (item) => {
+                    try {
+                        const verifyResponse = await verifySecureMessage(item.id);
+                        const verification = verifyResponse.data || {};
+
+                        return {
+                            ...item,
+                            valid: typeof verification.valid === "boolean" ? verification.valid : undefined,
+                            verificationStatus: verification.verificationStatus,
+                        };
+                    } catch (_error) {
+                        return {
+                            ...item,
+                            valid: undefined,
+                            verificationStatus: "failed",
+                        };
+                    }
+                })
+            );
+
+            setMessages(withVerification);
+        } finally {
+            if (withLoading) {
+                setMessagesLoading(false);
+            }
+        }
     }
 
     async function handleSend(event) {
@@ -228,23 +248,38 @@ function ChatPage({ user, token, onLogout }) {
                 </header>
 
                 <p className="mb-3 text-xs text-slate-400">Choose receiver</p>
-                <div className="max-h-56 space-y-2 overflow-y-auto pr-1 lg:max-h-none">
-                    {users.map((item) => (
-                        <button
-                            className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition ${selectedUserId === item._id
-                                ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
-                                : "border-white/10 bg-white/5 text-slate-200 hover:border-white/30"
-                                }`}
-                            key={item._id}
-                            type="button"
-                            onClick={() => setSelectedUserId(item._id)}
-                        >
-                            <p className="font-medium">{item.name}</p>
-                            <p className="truncate text-xs text-slate-400">{item.email}</p>
-                        </button>
-                    ))}
-                    {users.length === 0 && <p className="text-xs text-slate-400">No users available yet.</p>}
-                </div>
+                <Skeleton
+                    name="chat-user-list"
+                    loading={usersLoading}
+                    fallback={(
+                        <div className="max-h-56 space-y-2 overflow-y-auto pr-1 lg:max-h-none">
+                            {Array.from({ length: 4 }).map((_, index) => (
+                                <div
+                                    className="h-14 rounded-xl border border-white/10 bg-white/5"
+                                    key={`user-skeleton-${index}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                >
+                    <div className="max-h-56 space-y-2 overflow-y-auto pr-1 lg:max-h-none">
+                        {users.map((item) => (
+                            <button
+                                className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition ${selectedUserId === item._id
+                                    ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
+                                    : "border-white/10 bg-white/5 text-slate-200 hover:border-white/30"
+                                    }`}
+                                key={item._id}
+                                type="button"
+                                onClick={() => setSelectedUserId(item._id)}
+                            >
+                                <p className="font-medium">{item.name}</p>
+                                <p className="truncate text-xs text-slate-400">{item.email}</p>
+                            </button>
+                        ))}
+                        {users.length === 0 && <p className="text-xs text-slate-400">No users available yet.</p>}
+                    </div>
+                </Skeleton>
             </aside>
 
             <main className="rounded-3xl border border-white/15 bg-slate-950/70 p-4 backdrop-blur-xl">
@@ -261,19 +296,34 @@ function ChatPage({ user, token, onLogout }) {
                     </span>
                 </header>
 
-                <section className="mb-4 flex h-[52vh] min-h-[280px] flex-col gap-3 overflow-y-auto rounded-2xl bg-black/20 p-3 sm:h-[460px]">
-                    {messages.map((item) => (
-                        <MessageBubble
-                            key={item.id}
-                            item={item}
-                            self={String(item.sender) === String(user.id)}
-                            onVerify={handleVerify}
-                        />
-                    ))}
-                    {messages.length === 0 && (
-                        <p className="m-auto text-sm text-slate-400">Send your first encrypted message.</p>
+                <Skeleton
+                    name="chat-message-list"
+                    loading={messagesLoading}
+                    fallback={(
+                        <section className="mb-4 flex h-[52vh] min-h-[280px] flex-col gap-3 overflow-y-auto rounded-2xl bg-black/20 p-3 sm:h-[460px]">
+                            {Array.from({ length: 5 }).map((_, index) => (
+                                <div
+                                    className="h-24 rounded-2xl border border-white/10 bg-white/5"
+                                    key={`message-skeleton-${index}`}
+                                />
+                            ))}
+                        </section>
                     )}
-                </section>
+                >
+                    <section className="mb-4 flex h-[52vh] min-h-[280px] flex-col gap-3 overflow-y-auto rounded-2xl bg-black/20 p-3 sm:h-[460px]">
+                        {messages.map((item) => (
+                            <MessageBubble
+                                key={item.id}
+                                item={item}
+                                self={String(item.sender) === String(user.id)}
+                                onVerify={handleVerify}
+                            />
+                        ))}
+                        {messages.length === 0 && (
+                            <p className="m-auto text-sm text-slate-400">Send your first encrypted message.</p>
+                        )}
+                    </section>
+                </Skeleton>
 
                 <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleSend}>
                     <div className="w-full">
